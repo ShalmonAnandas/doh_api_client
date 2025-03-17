@@ -18,11 +18,11 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final _dohApiClientPlugin = DohApiClient();
-  String _apiGetRequest = "";
-  String _apiPostRequest = "";
-  String _apiPutRequest = "";
-  String _apiPatchRequest = "";
-  String _apiDeleteRequest = "";
+  Map<String, dynamic> _apiGetRequest = {};
+  Map<String, dynamic> _apiPostRequest = {};
+  Map<String, dynamic> _apiPutRequest = {};
+  Map<String, dynamic> _apiPatchRequest = {};
+  Map<String, dynamic> _apiDeleteRequest = {};
 
   @override
   void initState() {
@@ -32,123 +32,120 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String apiGetRequest;
-    String apiPostRequest;
-    String apiPutRequest;
-    String apiPatchRequest;
-    String apiDeleteRequest;
+    Map<String, dynamic>? apiGetRequest;
+    Map<String, dynamic>? apiPostRequest;
+    Map<String, dynamic>? apiPutRequest;
+    Map<String, dynamic>? apiPatchRequest;
+    Map<String, dynamic>? apiDeleteRequest;
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
 
     try {
       apiGetRequest = await _dohApiClientPlugin.get(
-              url: "https://jsonplaceholder.typicode.com/posts/1",
-              headers: {
-                "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
-              },
-              dohProvider: DohProvider.CloudFlare) ??
-          "Method Channel Called for GET Request but Failure Received";
+          url: "https://jsonplaceholder.typicode.com/posts/1",
+          headers: {
+            "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
+          },
+          dohProvider: DohProvider.CloudFlare);
       setState(() {
-        _apiGetRequest = apiGetRequest;
+        _apiGetRequest = apiGetRequest ?? {};
       });
     } catch (e) {
-      apiGetRequest = "Method Channel Failed to call for GET Request";
+      apiGetRequest = {
+        "ERROR": "Method Channel Failed to call for GET Request"
+      };
       setState(() {
-        _apiGetRequest = apiGetRequest;
+        _apiGetRequest = apiGetRequest ?? {};
       });
     }
 
     try {
       apiPostRequest = await _dohApiClientPlugin.post(
-              url: "https://jsonplaceholder.typicode.com/posts",
-              headers: {
-                "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-                'Content-type': 'application/json; charset=UTF-8'
-              },
-              body: jsonEncode({
-                "title": 'foo',
-                "body": 'bar',
-                "userId": 1,
-              }),
-              dohProvider: DohProvider.CloudFlare) ??
-          "Method Channel Called for POST Request but Failure Received";
+          url: "https://jsonplaceholder.typicode.com/posts",
+          headers: {
+            "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+            'Content-type': 'application/json; charset=UTF-8'
+          },
+          body: jsonEncode({
+            "title": 'foo',
+            "body": 'bar',
+            "userId": 1,
+          }),
+          dohProvider: DohProvider.CloudFlare);
       setState(() {
-        _apiPostRequest = apiPostRequest;
+        _apiPostRequest = apiPostRequest ?? {};
       });
     } catch (e) {
       apiPostRequest = "Method Channel Failed to call for POST Request";
       setState(() {
-        _apiPostRequest = apiPostRequest;
+        _apiPostRequest = apiPostRequest ?? {};
       });
     }
 
     try {
       apiPutRequest = await _dohApiClientPlugin.put(
-              url: "https://jsonplaceholder.typicode.com/posts/1",
-              headers: {
-                "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-                'Content-type': 'application/json; charset=UTF-8'
-              },
-              body: jsonEncode({
-                "id": 1,
-                "title": 'foo',
-                "body": 'bar',
-                "userId": 1,
-              }),
-              dohProvider: DohProvider.CloudFlare) ??
-          "Method Channel Called for PUT Request but Failure Received";
+          url: "https://jsonplaceholder.typicode.com/posts/1",
+          headers: {
+            "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+            'Content-type': 'application/json; charset=UTF-8'
+          },
+          body: jsonEncode({
+            "id": 1,
+            "title": 'foo',
+            "body": 'bar',
+            "userId": 1,
+          }),
+          dohProvider: DohProvider.CloudFlare);
       setState(() {
-        _apiPutRequest = apiPutRequest;
+        _apiPutRequest = apiPutRequest ?? {};
       });
     } catch (e) {
       apiPutRequest = "Method Channel Failed to call for PUT Request";
       setState(() {
-        _apiPutRequest = apiPutRequest;
+        _apiPutRequest = apiPutRequest ?? {};
       });
     }
 
     try {
       apiPatchRequest = await _dohApiClientPlugin.patch(
-              url: "https://jsonplaceholder.typicode.com/posts/1",
-              headers: {
-                "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-                'Content-type': 'application/json; charset=UTF-8'
-              },
-              body: jsonEncode({
-                "title": 'foo',
-              }),
-              dohProvider: DohProvider.CloudFlare) ??
-          "Method Channel Called for PATCH Request but Failure Received";
+          url: "https://jsonplaceholder.typicode.com/posts/1",
+          headers: {
+            "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+            'Content-type': 'application/json; charset=UTF-8'
+          },
+          body: jsonEncode({
+            "title": 'foo',
+          }),
+          dohProvider: DohProvider.CloudFlare);
       setState(() {
-        _apiPatchRequest = apiPatchRequest;
+        _apiPatchRequest = apiPatchRequest ?? {};
       });
     } catch (e) {
       apiPatchRequest = "Method Channel Failed to call for PATCH Request";
       setState(() {
-        _apiPatchRequest = apiPatchRequest;
+        _apiPatchRequest = apiPatchRequest ?? {};
       });
     }
 
     try {
       apiDeleteRequest = await _dohApiClientPlugin.delete(
-              url: "https://jsonplaceholder.typicode.com/posts/1",
-              headers: {
-                "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
-              },
-              dohProvider: DohProvider.CloudFlare) ??
-          "Method Channel Called for DELETE Request but Failure Received";
+          url: "https://jsonplaceholder.typicode.com/posts/1",
+          headers: {
+            "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
+          },
+          dohProvider: DohProvider.CloudFlare);
       setState(() {
-        _apiDeleteRequest = apiDeleteRequest;
+        _apiDeleteRequest = apiDeleteRequest ?? {};
       });
     } catch (e) {
       apiDeleteRequest = "Method Channel Failed to call for DELETE Request";
       setState(() {
-        _apiDeleteRequest = apiDeleteRequest;
+        _apiDeleteRequest = apiDeleteRequest ?? {};
       });
     }
     // If the widget was removed from the tree while the asynchronous platform

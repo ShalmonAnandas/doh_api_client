@@ -1,7 +1,7 @@
 import 'doh_api_client_platform_interface.dart';
 
 class DohApiClient {
-  Future<String?> get(
+  Future<Map<String, dynamic>?> get(
       {required String url,
       Map<String, dynamic>? headers,
       DohProvider? dohProvider}) {
@@ -9,7 +9,7 @@ class DohApiClient {
         .get(url, headers ?? {}, dohProvider ?? DohProvider.CloudFlare);
   }
 
-  Future<String?> post(
+  Future<Map<String, dynamic>?> post(
       {required String url,
       Map<String, dynamic>? headers,
       String? body,
@@ -18,7 +18,7 @@ class DohApiClient {
         url, headers ?? {}, body ?? "", dohProvider ?? DohProvider.CloudFlare);
   }
 
-  Future<String?> put(
+  Future<Map<String, dynamic>?> put(
       {required String url,
       Map<String, dynamic>? headers,
       String? body,
@@ -27,7 +27,7 @@ class DohApiClient {
         url, headers ?? {}, body ?? "", dohProvider ?? DohProvider.CloudFlare);
   }
 
-  Future<String?> patch(
+  Future<Map<String, dynamic>?> patch(
       {required String url,
       Map<String, dynamic>? headers,
       String? body,
@@ -36,7 +36,7 @@ class DohApiClient {
         url, headers ?? {}, body ?? "", dohProvider ?? DohProvider.CloudFlare);
   }
 
-  Future<String?> delete(
+  Future<Map<String, dynamic>?> delete(
       {required String url,
       Map<String, dynamic>? headers,
       DohProvider? dohProvider}) {

@@ -24,27 +24,27 @@ abstract class DohApiClientPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> get(
+  Future<Map<String, dynamic>?> get(
       String url, Map<String, dynamic> headers, DohProvider dohProvider) {
     throw UnimplementedError('get() has not been implemented');
   }
 
-  Future<String?> post(String url, Map<String, dynamic> headers, String body,
+  Future<Map<String, dynamic>?> post(String url, Map<String, dynamic> headers, String body,
       DohProvider dohProvider) {
     throw UnimplementedError('post() has not been implemented');
   }
 
-  Future<String?> put(String url, Map<String, dynamic> headers, String body,
+  Future<Map<String, dynamic>?> put(String url, Map<String, dynamic> headers, String body,
       DohProvider dohProvider) {
     throw UnimplementedError('put() has not been implemented');
   }
 
-  Future<String?> patch(String url, Map<String, dynamic> headers, String body,
+  Future<Map<String, dynamic>?> patch(String url, Map<String, dynamic> headers, String body,
       DohProvider dohProvider) {
     throw UnimplementedError('patch() has not been implemented');
   }
 
-  Future<String?> delete(
+  Future<Map<String, dynamic>?> delete(
       String url, Map<String, dynamic> headers, DohProvider dohProvider) {
     throw UnimplementedError('patch() has not been implemented');
   }

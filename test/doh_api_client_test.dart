@@ -8,29 +8,29 @@ class MockDohApiClientPlatform
     with MockPlatformInterfaceMixin
     implements DohApiClientPlatform {
   @override
-  Future<String?> get(
+  Future<Map<String, dynamic>?> get(
           String url, Map<String, dynamic>? headers, DohProvider dohProvider) =>
-      Future.value("");
+      Future.value({});
 
   @override
-  Future<String?> post(String url, Map<String, dynamic>? headers, String? body,
+  Future<Map<String, dynamic>?> post(String url, Map<String, dynamic>? headers, String? body,
           DohProvider dohProvider) =>
-      Future.value("");
+      Future.value({});
 
   @override
-  Future<String?> put(String url, Map<String, dynamic>? headers, String? body,
+  Future<Map<String, dynamic>?> put(String url, Map<String, dynamic>? headers, String? body,
           DohProvider dohProvider) =>
-      Future.value("");
+      Future.value({});
 
   @override
-  Future<String?> patch(String url, Map<String, dynamic>? headers, String? body,
+  Future<Map<String, dynamic>?> patch(String url, Map<String, dynamic>? headers, String? body,
           DohProvider dohProvider) =>
-      Future.value("");
+      Future.value({});
 
   @override
-  Future<String?> delete(
+  Future<Map<String, dynamic>?> delete(
           String url, Map<String, dynamic>? headers, DohProvider dohProvider) =>
-      Future.value("");
+      Future.value({});
 }
 
 void main() {

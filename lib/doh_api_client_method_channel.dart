@@ -11,7 +11,7 @@ class MethodChannelDohApiClient extends DohApiClientPlatform {
   final methodChannel = const MethodChannel('doh_api_client');
 
   @override
-  Future<String?> get(
+  Future<Map<String, dynamic>?> get(
       String url, Map<String, dynamic> headers, DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makeGetRequest', {
       'url': url,
@@ -23,7 +23,7 @@ class MethodChannelDohApiClient extends DohApiClientPlatform {
   }
 
   @override
-  Future<String?> post(String url, Map<String, dynamic> headers, String body,
+  Future<Map<String, dynamic>?> post(String url, Map<String, dynamic> headers, String body,
       DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makePostRequest', {
       'url': url,
@@ -36,7 +36,7 @@ class MethodChannelDohApiClient extends DohApiClientPlatform {
   }
 
   @override
-  Future<String?> put(String url, Map<String, dynamic> headers, String body,
+  Future<Map<String, dynamic>?> put(String url, Map<String, dynamic> headers, String body,
       DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makePutRequest', {
       'url': url,
@@ -49,7 +49,7 @@ class MethodChannelDohApiClient extends DohApiClientPlatform {
   }
 
   @override
-  Future<String?> patch(String url, Map<String, dynamic> headers, String body,
+  Future<Map<String, dynamic>?> patch(String url, Map<String, dynamic> headers, String body,
       DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makePatchRequest', {
       'url': url,
@@ -62,7 +62,7 @@ class MethodChannelDohApiClient extends DohApiClientPlatform {
   }
 
   @override
-  Future<String?> delete(
+  Future<Map<String, dynamic>?> delete(
       String url, Map<String, dynamic> headers, DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makeDeleteRequest', {
       'url': url,
