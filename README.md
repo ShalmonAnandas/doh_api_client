@@ -40,7 +40,7 @@ Here's an example of how to make a POST request using the DoH API client:
 final _dohApiClientPlugin = DohApiClient();
 
 try {
-  String apiPostRequest = await _dohApiClientPlugin.post(
+  Map<String, dynamic>? apiPostRequest = await _dohApiClientPlugin.post(
     url: "https://jsonplaceholder.typicode.com/posts",
     headers: {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
