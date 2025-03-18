@@ -17,7 +17,7 @@ Add this to your package's `pubspec.yaml` file:
 dependencies:
   doh_api_client: ^1.0.4
 ```
-
+s
 Then run:
 
 ```
@@ -86,11 +86,11 @@ The main class for making API requests.
 
 Methods:
 
-- `Future<String?> get({required String url, Map<String, String>? headers, DohProvider dohProvider})`
-- `Future<String?> post({required String url, Map<String, String>? headers, required String body, DohProvider dohProvider})`
-- `Future<String?> put({required String url, Map<String, String>? headers, required String body, DohProvider dohProvider})`
-- `Future<String?> patch({required String url, Map<String, String>? headers, required String body, DohProvider dohProvider})`
-- `Future<String?> delete({required String url, Map<String, String>? headers, DohProvider dohProvider})`
+- `Future<Map<String, dynamic>?> get({required String url, Map<String, String>? headers, DohProvider dohProvider})`
+- `Future<Map<String, dynamic>?> post({required String url, Map<String, String>? headers, required String body, DohProvider dohProvider})`
+- `Future<Map<String, dynamic>?> put({required String url, Map<String, String>? headers, required String body, DohProvider dohProvider})`
+- `Future<Map<String, dynamic>?> patch({required String url, Map<String, String>? headers, required String body, DohProvider dohProvider})`
+- `Future<Map<String, dynamic>?> delete({required String url, Map<String, String>? headers, DohProvider dohProvider})`
 
 ## Contributing
 
