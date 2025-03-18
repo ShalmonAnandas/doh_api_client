@@ -15,7 +15,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  doh_api_client: ^1.0.0
+  doh_api_client: ^1.0.4
 ```
 
 Then run:

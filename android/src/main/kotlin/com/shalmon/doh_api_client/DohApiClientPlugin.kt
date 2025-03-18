@@ -16,6 +16,7 @@ import okhttp3.dnsoverhttps.DnsOverHttps
 import java.net.InetAddress
 import java.io.IOException
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import org.json.JSONObject
 
 /// ssl
 import javax.net.ssl.SSLContext;
@@ -59,9 +60,9 @@ class DohApiClientPlugin : FlutterPlugin, MethodCallHandler {
             if (url != null) {
                 ApiClient(dohProvider).makeGetRequest(
                     url, headers ?: emptyMap()
-                ) { response, error -> // Pass headers to ApiClient
+                ) { response, error -> 
                     if (error != null) {
-                        result.error("GET_API_ERROR", error, null)
+                        result.success(error)
                     } else {
                         result.success(response)
                     }
@@ -75,9 +76,9 @@ class DohApiClientPlugin : FlutterPlugin, MethodCallHandler {
             if (url != null) {
                 ApiClient(dohProvider).makePostRequest(
                     url, headers ?: emptyMap(), body
-                ) { response, error -> // Pass headers to ApiClient
+                ) { response, error -> 
                     if (error != null) {
-                        result.error("POST_API_ERROR", error, null)
+                        result.success(error)
                     } else {
                         result.success(response)
                     }
@@ -91,9 +92,9 @@ class DohApiClientPlugin : FlutterPlugin, MethodCallHandler {
             if (url != null) {
                 ApiClient(dohProvider).makePutRequest(
                     url, headers ?: emptyMap(), body
-                ) { response, error -> // Pass headers to ApiClient
+                ) { response, error -> 
                     if (error != null) {
-                        result.error("PUT_API_ERROR", error, null)
+                        result.success(error)
                     } else {
                         result.success(response)
                     }
@@ -107,9 +108,9 @@ class DohApiClientPlugin : FlutterPlugin, MethodCallHandler {
             if (url != null) {
                 ApiClient(dohProvider).makePatchRequest(
                     url, headers ?: emptyMap(), body
-                ) { response, error -> // Pass headers to ApiClient
+                ) { response, error -> 
                     if (error != null) {
-                        result.error("PATCH_API_ERROR", error, null)
+                        result.success(error)
                     } else {
                         result.success(response)
                     }
@@ -122,9 +123,9 @@ class DohApiClientPlugin : FlutterPlugin, MethodCallHandler {
             if (url != null) {
                 ApiClient(dohProvider).makeDeleteRequest(
                     url, headers ?: emptyMap()
-                ) { response, error -> // Pass headers to ApiClient
+                ) { response, error -> 
                     if (error != null) {
-                        result.error("DELETE_API_ERROR", error, null)
+                        result.success(error)
                     } else {
                         result.success(response)
                     }
@@ -145,7 +146,6 @@ class ApiClient(dohProvider: String) {
     private val client: OkHttpClient
 
     init {
-
         // Create the OkHttpClient based on the selected DoH provider
         val dnsBuilder = when (dohProvider) {
             "CloudFlare" -> OkHttpClient.Builder().dohCloudflare().build()
@@ -167,7 +167,7 @@ class ApiClient(dohProvider: String) {
     }
 
     fun makeGetRequest(
-        url: String, headers: Map<String, String>, result: (String?, String?) -> Unit
+        url: String, headers: Map<String, String>, result: (Map<String, Any>?, Map<String, Any>?) -> Unit
     ) {
         println(client)
         val builder = okhttp3.Request.Builder().url(url)
@@ -180,23 +180,47 @@ class ApiClient(dohProvider: String) {
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                result(null, e.message)
+                val errorMap = mapOf(
+                    "success" to false,
+                    "message" to (e.message ?: "Unknown error"),
+                    "code" to -1
+                )
+                result(null, errorMap)
             }
 
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 if (!response.isSuccessful) {
-                    result(null, response.message)
+                    val errorMap = mapOf(
+                        "success" to false,
+                        "message" to response.message,
+                        "code" to response.code
+                    )
+                    result(null, errorMap)
                     return
                 }
+                
                 response.body?.string()?.let {
-                    result(it, null)
+                    try {
+                        // Try to parse as JSON
+                        val jsonObject = JSONObject(it)
+                        val responseMap = jsonToMap(jsonObject)
+                        result(responseMap, null)
+                    } catch (e: Exception) {
+                        // If it's not valid JSON, return it as a string in a map
+                        val responseMap = mapOf(
+                            "success" to true,
+                            "data" to it,
+                            "code" to response.code
+                        )
+                        result(responseMap, null)
+                    }
                 }
             }
         })
     }
 
     fun makePostRequest(
-        url: String, headers: Map<String, String>, body: String?, result: (String?, String?) -> Unit
+        url: String, headers: Map<String, String>, body: String?, result: (Map<String, Any>?, Map<String, Any>?) -> Unit
     ) {
         val builder = okhttp3.Request.Builder().url(url)
 
@@ -211,23 +235,47 @@ class ApiClient(dohProvider: String) {
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                result(null, e.message)
+                val errorMap = mapOf(
+                    "success" to false,
+                    "message" to (e.message ?: "Unknown error"),
+                    "code" to -1
+                )
+                result(null, errorMap)
             }
 
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 if (!response.isSuccessful) {
-                    result(null, response.message)
+                    val errorMap = mapOf(
+                        "success" to false,
+                        "message" to response.message,
+                        "code" to response.code
+                    )
+                    result(null, errorMap)
                     return
                 }
+                
                 response.body?.string()?.let {
-                    result(it, null)
+                    try {
+                        // Try to parse as JSON
+                        val jsonObject = JSONObject(it)
+                        val responseMap = jsonToMap(jsonObject)
+                        result(responseMap, null)
+                    } catch (e: Exception) {
+                        // If it's not valid JSON, return it as a string in a map
+                        val responseMap = mapOf(
+                            "success" to true,
+                            "data" to it,
+                            "code" to response.code
+                        )
+                        result(responseMap, null)
+                    }
                 }
             }
         })
     }
 
     fun makePutRequest(
-        url: String, headers: Map<String, String>, body: String?, result: (String?, String?) -> Unit
+        url: String, headers: Map<String, String>, body: String?, result: (Map<String, Any>?, Map<String, Any>?) -> Unit
     ) {
         val builder = okhttp3.Request.Builder().url(url)
 
@@ -242,23 +290,47 @@ class ApiClient(dohProvider: String) {
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                result(null, e.message)
+                val errorMap = mapOf(
+                    "success" to false,
+                    "message" to (e.message ?: "Unknown error"),
+                    "code" to -1
+                )
+                result(null, errorMap)
             }
 
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 if (!response.isSuccessful) {
-                    result(null, response.message)
+                    val errorMap = mapOf(
+                        "success" to false,
+                        "message" to response.message,
+                        "code" to response.code
+                    )
+                    result(null, errorMap)
                     return
                 }
+                
                 response.body?.string()?.let {
-                    result(it, null)
+                    try {
+                        // Try to parse as JSON
+                        val jsonObject = JSONObject(it)
+                        val responseMap = jsonToMap(jsonObject)
+                        result(responseMap, null)
+                    } catch (e: Exception) {
+                        // If it's not valid JSON, return it as a string in a map
+                        val responseMap = mapOf(
+                            "success" to true,
+                            "data" to it,
+                            "code" to response.code
+                        )
+                        result(responseMap, null)
+                    }
                 }
             }
         })
     }
 
     fun makePatchRequest(
-        url: String, headers: Map<String, String>, body: String?, result: (String?, String?) -> Unit
+        url: String, headers: Map<String, String>, body: String?, result: (Map<String, Any>?, Map<String, Any>?) -> Unit
     ) {
         val builder = okhttp3.Request.Builder().url(url)
 
@@ -273,23 +345,47 @@ class ApiClient(dohProvider: String) {
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                result(null, e.message)
+                val errorMap = mapOf(
+                    "success" to false,
+                    "message" to (e.message ?: "Unknown error"),
+                    "code" to -1
+                )
+                result(null, errorMap)
             }
 
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 if (!response.isSuccessful) {
-                    result(null, response.message)
+                    val errorMap = mapOf(
+                        "success" to false,
+                        "message" to response.message,
+                        "code" to response.code
+                    )
+                    result(null, errorMap)
                     return
                 }
+                
                 response.body?.string()?.let {
-                    result(it, null)
+                    try {
+                        // Try to parse as JSON
+                        val jsonObject = JSONObject(it)
+                        val responseMap = jsonToMap(jsonObject)
+                        result(responseMap, null)
+                    } catch (e: Exception) {
+                        // If it's not valid JSON, return it as a string in a map
+                        val responseMap = mapOf(
+                            "success" to true,
+                            "data" to it,
+                            "code" to response.code
+                        )
+                        result(responseMap, null)
+                    }
                 }
             }
         })
     }
 
     fun makeDeleteRequest(
-        url: String, headers: Map<String, String>, result: (String?, String?) -> Unit
+        url: String, headers: Map<String, String>, result: (Map<String, Any>?, Map<String, Any>?) -> Unit
     ) {
         val builder = okhttp3.Request.Builder().url(url)
 
@@ -301,18 +397,71 @@ class ApiClient(dohProvider: String) {
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                result(null, e.message)
+                val errorMap = mapOf(
+                    "success" to false,
+                    "message" to (e.message ?: "Unknown error"),
+                    "code" to -1
+                )
+                result(null, errorMap)
             }
 
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 if (!response.isSuccessful) {
-                    result(null, response.message)
+                    val errorMap = mapOf(
+                        "success" to false,
+                        "message" to response.message,
+                        "code" to response.code
+                    )
+                    result(null, errorMap)
                     return
                 }
+                
                 response.body?.string()?.let {
-                    result(it, null)
+                    try {
+                        // Try to parse as JSON
+                        val jsonObject = JSONObject(it)
+                        val responseMap = jsonToMap(jsonObject)
+                        result(responseMap, null)
+                    } catch (e: Exception) {
+                        // If it's not valid JSON, return it as a string in a map
+                        val responseMap = mapOf(
+                            "success" to true,
+                            "data" to it,
+                            "code" to response.code
+                        )
+                        result(responseMap, null)
+                    }
                 }
             }
         })
+    }
+    
+    // Helper function to convert JSONObject to Map
+    private fun jsonToMap(json: JSONObject): Map<String, Any> {
+        val map = mutableMapOf<String, Any>()
+        val keys = json.keys()
+        
+        while (keys.hasNext()) {
+            val key = keys.next()
+            val value = json.get(key)
+            
+            map[key] = when (value) {
+                is JSONObject -> jsonToMap(value)
+                is org.json.JSONArray -> {
+                    val list = mutableListOf<Any>()
+                    for (i in 0 until value.length()) {
+                        val element = value.get(i)
+                        when (element) {
+                            is JSONObject -> list.add(jsonToMap(element))
+                            else -> list.add(element)
+                        }
+                    }
+                    list
+                }
+                else -> value
+            }
+        }
+        
+        return map
     }
 }

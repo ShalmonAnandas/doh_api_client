@@ -17,3 +17,7 @@
 ## 1.0.3
 
 * Updated version in pubspec
+
+## 1.0.4
+
+* Changed error behaviour, now returns Map<String, Dynamic>? instead of String?

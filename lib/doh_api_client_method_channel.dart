@@ -1,3 +1,4 @@
+import 'package:doh_api_client/response_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -5,7 +6,8 @@ import 'doh_api_client.dart';
 import 'doh_api_client_platform_interface.dart';
 
 /// An implementation of [DohApiClientPlatform] that uses method channels.
-class MethodChannelDohApiClient extends DohApiClientPlatform {
+class MethodChannelDohApiClient extends DohApiClientPlatform
+    with ResponseUtils {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final methodChannel = const MethodChannel('doh_api_client');
@@ -19,12 +21,13 @@ class MethodChannelDohApiClient extends DohApiClientPlatform {
       "dohProvider": dohProvider.toString()
     });
 
-    return result;
+    if (result == null) return null;
+    return convertMap(result as Map<Object?, Object?>);
   }
 
   @override
-  Future<Map<String, dynamic>?> post(String url, Map<String, dynamic> headers, String body,
-      DohProvider dohProvider) async {
+  Future<Map<String, dynamic>?> post(String url, Map<String, dynamic> headers,
+      String body, DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makePostRequest', {
       'url': url,
       'headers': headers,
@@ -32,12 +35,13 @@ class MethodChannelDohApiClient extends DohApiClientPlatform {
       "dohProvider": dohProvider.toString()
     });
 
-    return result;
+    if (result == null) return null;
+    return convertMap(result as Map<Object?, Object?>);
   }
 
   @override
-  Future<Map<String, dynamic>?> put(String url, Map<String, dynamic> headers, String body,
-      DohProvider dohProvider) async {
+  Future<Map<String, dynamic>?> put(String url, Map<String, dynamic> headers,
+      String body, DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makePutRequest', {
       'url': url,
       'headers': headers,
@@ -45,12 +49,13 @@ class MethodChannelDohApiClient extends DohApiClientPlatform {
       "dohProvider": dohProvider.toString()
     });
 
-    return result;
+    if (result == null) return null;
+    return convertMap(result as Map<Object?, Object?>);
   }
 
   @override
-  Future<Map<String, dynamic>?> patch(String url, Map<String, dynamic> headers, String body,
-      DohProvider dohProvider) async {
+  Future<Map<String, dynamic>?> patch(String url, Map<String, dynamic> headers,
+      String body, DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makePatchRequest', {
       'url': url,
       'headers': headers,
@@ -58,7 +63,8 @@ class MethodChannelDohApiClient extends DohApiClientPlatform {
       "dohProvider": dohProvider.toString()
     });
 
-    return result;
+    if (result == null) return null;
+    return convertMap(result as Map<Object?, Object?>);
   }
 
   @override
@@ -70,6 +76,7 @@ class MethodChannelDohApiClient extends DohApiClientPlatform {
       "dohProvider": dohProvider.toString()
     });
 
-    return result;
+    if (result == null) return null;
+    return convertMap(result as Map<Object?, Object?>);
   }
 }

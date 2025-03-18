@@ -78,7 +78,9 @@ class _MyAppState extends State<MyApp> {
         _apiPostRequest = apiPostRequest ?? {};
       });
     } catch (e) {
-      apiPostRequest = "Method Channel Failed to call for POST Request";
+      apiPostRequest = {
+        "ERROR": "Method Channel Failed to call for POST Request"
+      };
       setState(() {
         _apiPostRequest = apiPostRequest ?? {};
       });
@@ -103,7 +105,9 @@ class _MyAppState extends State<MyApp> {
         _apiPutRequest = apiPutRequest ?? {};
       });
     } catch (e) {
-      apiPutRequest = "Method Channel Failed to call for PUT Request";
+      apiPutRequest = {
+        "ERROR": "Method Channel Failed to call for PUT Request"
+      };
       setState(() {
         _apiPutRequest = apiPutRequest ?? {};
       });
@@ -125,7 +129,9 @@ class _MyAppState extends State<MyApp> {
         _apiPatchRequest = apiPatchRequest ?? {};
       });
     } catch (e) {
-      apiPatchRequest = "Method Channel Failed to call for PATCH Request";
+      apiPatchRequest = {
+        "ERROR": "Method Channel Failed to call for PATCH Request"
+      };
       setState(() {
         _apiPatchRequest = apiPatchRequest ?? {};
       });
@@ -140,10 +146,13 @@ class _MyAppState extends State<MyApp> {
           },
           dohProvider: DohProvider.CloudFlare);
       setState(() {
-        _apiDeleteRequest = apiDeleteRequest ?? {};
+        // custom map in case of delete request because delete returns {}
+        _apiDeleteRequest = {"success": "DELETE Request Successful"};
       });
     } catch (e) {
-      apiDeleteRequest = "Method Channel Failed to call for DELETE Request";
+      apiDeleteRequest = {
+        "ERROR": "Method Channel Failed to call for DELETE Request"
+      };
       setState(() {
         _apiDeleteRequest = apiDeleteRequest ?? {};
       });
@@ -173,7 +182,7 @@ class _MyAppState extends State<MyApp> {
                     const Text("GET Request: "),
                     _apiGetRequest.isEmpty
                         ? const CircularProgressIndicator()
-                        : Expanded(child: Text(_apiGetRequest)),
+                        : Expanded(child: Text(jsonEncode(_apiGetRequest))),
                   ],
                 ),
               ),
@@ -185,7 +194,7 @@ class _MyAppState extends State<MyApp> {
                     const Text("POST Request: "),
                     _apiPostRequest.isEmpty
                         ? const CircularProgressIndicator()
-                        : Expanded(child: Text(_apiPostRequest)),
+                        : Expanded(child: Text(jsonEncode(_apiPostRequest))),
                   ],
                 ),
               ),
@@ -197,7 +206,7 @@ class _MyAppState extends State<MyApp> {
                     const Text("PUT Request: "),
                     _apiPutRequest.isEmpty
                         ? const CircularProgressIndicator()
-                        : Expanded(child: Text(_apiPutRequest)),
+                        : Expanded(child: Text(jsonEncode(_apiPutRequest))),
                   ],
                 ),
               ),
@@ -209,7 +218,7 @@ class _MyAppState extends State<MyApp> {
                     const Text("PATCH Request: "),
                     _apiPatchRequest.isEmpty
                         ? const CircularProgressIndicator()
-                        : Expanded(child: Text(_apiPatchRequest)),
+                        : Expanded(child: Text(jsonEncode(_apiPatchRequest))),
                   ],
                 ),
               ),
@@ -221,7 +230,7 @@ class _MyAppState extends State<MyApp> {
                     const Text("DELETE Request: "),
                     _apiDeleteRequest.isEmpty
                         ? const CircularProgressIndicator()
-                        : Expanded(child: Text(_apiDeleteRequest)),
+                        : Expanded(child: Text(jsonEncode(_apiDeleteRequest))),
                   ],
                 ),
               ),
