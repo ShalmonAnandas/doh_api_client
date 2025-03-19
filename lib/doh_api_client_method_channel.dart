@@ -1,3 +1,4 @@
+import 'package:doh_api_client/doh_response_model.dart';
 import 'package:doh_api_client/response_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +14,7 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
   final methodChannel = const MethodChannel('doh_api_client');
 
   @override
-  Future<Map<String, dynamic>?> get(
+  Future<DohResponse> get(
       String url, Map<String, dynamic> headers, DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makeGetRequest', {
       'url': url,
@@ -21,12 +22,11 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
       "dohProvider": dohProvider.toString()
     });
 
-    if (result == null) return null;
-    return convertMap(result as Map<Object?, Object?>);
+    return _returnResponse(result);
   }
 
   @override
-  Future<Map<String, dynamic>?> post(String url, Map<String, dynamic> headers,
+  Future<DohResponse> post(String url, Map<String, dynamic> headers,
       String body, DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makePostRequest', {
       'url': url,
@@ -35,12 +35,11 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
       "dohProvider": dohProvider.toString()
     });
 
-    if (result == null) return null;
-    return convertMap(result as Map<Object?, Object?>);
+    return _returnResponse(result);
   }
 
   @override
-  Future<Map<String, dynamic>?> put(String url, Map<String, dynamic> headers,
+  Future<DohResponse> put(String url, Map<String, dynamic> headers,
       String body, DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makePutRequest', {
       'url': url,
@@ -49,12 +48,11 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
       "dohProvider": dohProvider.toString()
     });
 
-    if (result == null) return null;
-    return convertMap(result as Map<Object?, Object?>);
+    return _returnResponse(result);
   }
 
   @override
-  Future<Map<String, dynamic>?> patch(String url, Map<String, dynamic> headers,
+  Future<DohResponse> patch(String url, Map<String, dynamic> headers,
       String body, DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makePatchRequest', {
       'url': url,
@@ -63,12 +61,11 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
       "dohProvider": dohProvider.toString()
     });
 
-    if (result == null) return null;
-    return convertMap(result as Map<Object?, Object?>);
+    return _returnResponse(result);
   }
 
   @override
-  Future<Map<String, dynamic>?> delete(
+  Future<DohResponse> delete(
       String url, Map<String, dynamic> headers, DohProvider dohProvider) async {
     final result = await methodChannel.invokeMethod('makeDeleteRequest', {
       'url': url,
@@ -76,7 +73,22 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
       "dohProvider": dohProvider.toString()
     });
 
-    if (result == null) return null;
-    return convertMap(result as Map<Object?, Object?>);
+    return _returnResponse(result);
+  }
+
+  DohResponse _returnResponse(result) {
+    if (result == null) {
+      return DohResponse(
+          data: {}, message: "Unkown Error", statusCode: 520);
+    } else {
+      final map = convertMap(result as Map<Object?, Object?>);
+      if (map["success"] == false) {
+        return DohResponse(
+            statusCode: map["code"], message: map["message"], data: {});
+      } else {
+        return DohResponse(
+            data: map["data"], message: "", statusCode: map["code"]);
+      }
+    }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:doh_api_client/doh_response_model.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'doh_api_client.dart';
@@ -24,27 +25,27 @@ abstract class DohApiClientPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<Map<String, dynamic>?> get(
+  Future<DohResponse> get(
       String url, Map<String, dynamic> headers, DohProvider dohProvider) {
     throw UnimplementedError('get() has not been implemented');
   }
 
-  Future<Map<String, dynamic>?> post(String url, Map<String, dynamic> headers, String body,
-      DohProvider dohProvider) {
+  Future<DohResponse> post(String url, Map<String, dynamic> headers,
+      String body, DohProvider dohProvider) {
     throw UnimplementedError('post() has not been implemented');
   }
 
-  Future<Map<String, dynamic>?> put(String url, Map<String, dynamic> headers, String body,
-      DohProvider dohProvider) {
+  Future<DohResponse> put(String url, Map<String, dynamic> headers,
+      String body, DohProvider dohProvider) {
     throw UnimplementedError('put() has not been implemented');
   }
 
-  Future<Map<String, dynamic>?> patch(String url, Map<String, dynamic> headers, String body,
-      DohProvider dohProvider) {
+  Future<DohResponse> patch(String url, Map<String, dynamic> headers,
+      String body, DohProvider dohProvider) {
     throw UnimplementedError('patch() has not been implemented');
   }
 
-  Future<Map<String, dynamic>?> delete(
+  Future<DohResponse> delete(
       String url, Map<String, dynamic> headers, DohProvider dohProvider) {
     throw UnimplementedError('patch() has not been implemented');
   }

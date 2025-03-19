@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:doh_api_client/doh_response_model.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -18,11 +19,11 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final _dohApiClientPlugin = DohApiClient();
-  Map<String, dynamic> _apiGetRequest = {};
-  Map<String, dynamic> _apiPostRequest = {};
-  Map<String, dynamic> _apiPutRequest = {};
-  Map<String, dynamic> _apiPatchRequest = {};
-  Map<String, dynamic> _apiDeleteRequest = {};
+  DohResponse _apiGetRequest = DohResponse.empty();
+  DohResponse _apiPostRequest = DohResponse.empty();
+  DohResponse _apiPutRequest = DohResponse.empty();
+  DohResponse _apiPatchRequest = DohResponse.empty();
+  DohResponse _apiDeleteRequest = DohResponse.empty();
 
   @override
   void initState() {
@@ -32,131 +33,87 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    Map<String, dynamic>? apiGetRequest;
-    Map<String, dynamic>? apiPostRequest;
-    Map<String, dynamic>? apiPutRequest;
-    Map<String, dynamic>? apiPatchRequest;
-    Map<String, dynamic>? apiDeleteRequest;
+    DohResponse apiGetRequest;
+    DohResponse apiPostRequest;
+    DohResponse apiPutRequest;
+    DohResponse apiPatchRequest;
+    DohResponse apiDeleteRequest;
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
 
-    try {
-      apiGetRequest = await _dohApiClientPlugin.get(
-          url: "https://jsonplaceholder.typicode.com/posts/1",
-          headers: {
-            "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
-          },
-          dohProvider: DohProvider.CloudFlare);
-      setState(() {
-        _apiGetRequest = apiGetRequest ?? {};
-      });
-    } catch (e) {
-      apiGetRequest = {
-        "ERROR": "Method Channel Failed to call for GET Request"
-      };
-      setState(() {
-        _apiGetRequest = apiGetRequest ?? {};
-      });
-    }
+    apiGetRequest = await _dohApiClientPlugin.get(
+        url: "https://jsonplaceholder.typicode.com/posts/1",
+        headers: {
+          "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
+        },
+        dohProvider: DohProvider.CloudFlare);
+    setState(() {
+      _apiGetRequest = apiGetRequest;
+    });
 
-    try {
-      apiPostRequest = await _dohApiClientPlugin.post(
-          url: "https://jsonplaceholder.typicode.com/posts",
-          headers: {
-            "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-            'Content-type': 'application/json; charset=UTF-8'
-          },
-          body: jsonEncode({
-            "title": 'foo',
-            "body": 'bar',
-            "userId": 1,
-          }),
-          dohProvider: DohProvider.CloudFlare);
-      setState(() {
-        _apiPostRequest = apiPostRequest ?? {};
-      });
-    } catch (e) {
-      apiPostRequest = {
-        "ERROR": "Method Channel Failed to call for POST Request"
-      };
-      setState(() {
-        _apiPostRequest = apiPostRequest ?? {};
-      });
-    }
+    apiPostRequest = await _dohApiClientPlugin.post(
+        url: "https://jsonplaceholder.typicode.com/posts",
+        headers: {
+          "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+          'Content-type': 'application/json; charset=UTF-8'
+        },
+        body: jsonEncode({
+          "title": 'foo',
+          "body": 'bar',
+          "userId": 1,
+        }),
+        dohProvider: DohProvider.CloudFlare);
+    setState(() {
+      _apiPostRequest = apiPostRequest;
+    });
 
-    try {
-      apiPutRequest = await _dohApiClientPlugin.put(
-          url: "https://jsonplaceholder.typicode.com/posts/1",
-          headers: {
-            "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-            'Content-type': 'application/json; charset=UTF-8'
-          },
-          body: jsonEncode({
-            "id": 1,
-            "title": 'foo',
-            "body": 'bar',
-            "userId": 1,
-          }),
-          dohProvider: DohProvider.CloudFlare);
-      setState(() {
-        _apiPutRequest = apiPutRequest ?? {};
-      });
-    } catch (e) {
-      apiPutRequest = {
-        "ERROR": "Method Channel Failed to call for PUT Request"
-      };
-      setState(() {
-        _apiPutRequest = apiPutRequest ?? {};
-      });
-    }
+    apiPutRequest = await _dohApiClientPlugin.put(
+        url: "https://jsonplaceholder.typicode.com/posts/1",
+        headers: {
+          "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+          'Content-type': 'application/json; charset=UTF-8'
+        },
+        body: jsonEncode({
+          "id": 1,
+          "title": 'foo',
+          "body": 'bar',
+          "userId": 1,
+        }),
+        dohProvider: DohProvider.CloudFlare);
+    setState(() {
+      _apiPutRequest = apiPutRequest;
+    });
 
-    try {
-      apiPatchRequest = await _dohApiClientPlugin.patch(
-          url: "https://jsonplaceholder.typicode.com/posts/1",
-          headers: {
-            "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-            'Content-type': 'application/json; charset=UTF-8'
-          },
-          body: jsonEncode({
-            "title": 'foo',
-          }),
-          dohProvider: DohProvider.CloudFlare);
-      setState(() {
-        _apiPatchRequest = apiPatchRequest ?? {};
-      });
-    } catch (e) {
-      apiPatchRequest = {
-        "ERROR": "Method Channel Failed to call for PATCH Request"
-      };
-      setState(() {
-        _apiPatchRequest = apiPatchRequest ?? {};
-      });
-    }
+    apiPatchRequest = await _dohApiClientPlugin.patch(
+        url: "https://jsonplaceholder.typicode.com/posts/1",
+        headers: {
+          "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+          'Content-type': 'application/json; charset=UTF-8'
+        },
+        body: jsonEncode({
+          "title": 'foo',
+        }),
+        dohProvider: DohProvider.CloudFlare);
+    setState(() {
+      _apiPatchRequest = apiPatchRequest;
+    });
 
-    try {
-      apiDeleteRequest = await _dohApiClientPlugin.delete(
-          url: "https://jsonplaceholder.typicode.com/posts/1",
-          headers: {
-            "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
-          },
-          dohProvider: DohProvider.CloudFlare);
-      setState(() {
-        // custom map in case of delete request because delete returns {}
-        _apiDeleteRequest = {"success": "DELETE Request Successful"};
-      });
-    } catch (e) {
-      apiDeleteRequest = {
-        "ERROR": "Method Channel Failed to call for DELETE Request"
-      };
-      setState(() {
-        _apiDeleteRequest = apiDeleteRequest ?? {};
-      });
-    }
+    apiDeleteRequest = await _dohApiClientPlugin.delete(
+        url: "https://jsonplaceholder.typicode.com/posts/1",
+        headers: {
+          "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
+        },
+        dohProvider: DohProvider.CloudFlare);
+    setState(() {
+      // custom map in case of delete request because delete returns {}
+      _apiDeleteRequest = apiDeleteRequest;
+    });
+
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
@@ -180,9 +137,10 @@ class _MyAppState extends State<MyApp> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text("GET Request: "),
-                    _apiGetRequest.isEmpty
+                    _apiGetRequest.statusCode != 200
                         ? const CircularProgressIndicator()
-                        : Expanded(child: Text(jsonEncode(_apiGetRequest))),
+                        : Expanded(
+                            child: Text(jsonEncode(_apiGetRequest.data))),
                   ],
                 ),
               ),
@@ -192,9 +150,10 @@ class _MyAppState extends State<MyApp> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text("POST Request: "),
-                    _apiPostRequest.isEmpty
+                    _apiPostRequest.statusCode == 200
                         ? const CircularProgressIndicator()
-                        : Expanded(child: Text(jsonEncode(_apiPostRequest))),
+                        : Expanded(
+                            child: Text(jsonEncode(_apiPostRequest.data))),
                   ],
                 ),
               ),
@@ -204,9 +163,10 @@ class _MyAppState extends State<MyApp> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text("PUT Request: "),
-                    _apiPutRequest.isEmpty
+                    _apiPutRequest.statusCode != 200
                         ? const CircularProgressIndicator()
-                        : Expanded(child: Text(jsonEncode(_apiPutRequest))),
+                        : Expanded(
+                            child: Text(jsonEncode(_apiPutRequest.data))),
                   ],
                 ),
               ),
@@ -216,9 +176,10 @@ class _MyAppState extends State<MyApp> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text("PATCH Request: "),
-                    _apiPatchRequest.isEmpty
+                    _apiPatchRequest.statusCode != 200
                         ? const CircularProgressIndicator()
-                        : Expanded(child: Text(jsonEncode(_apiPatchRequest))),
+                        : Expanded(
+                            child: Text(jsonEncode(_apiPatchRequest.data))),
                   ],
                 ),
               ),
@@ -228,9 +189,10 @@ class _MyAppState extends State<MyApp> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text("DELETE Request: "),
-                    _apiDeleteRequest.isEmpty
+                    _apiDeleteRequest.statusCode != 200
                         ? const CircularProgressIndicator()
-                        : Expanded(child: Text(jsonEncode(_apiDeleteRequest))),
+                        : Expanded(
+                            child: Text(jsonEncode(_apiDeleteRequest.data))),
                   ],
                 ),
               ),

@@ -21,3 +21,6 @@
 ## 1.0.4
 
 * Changed error behaviour, now returns Map<String, Dynamic>? instead of String?
+
+## 1.0.5
+* Now returns DohResponse instead of plain Map<String, dynamic> to better handle error states

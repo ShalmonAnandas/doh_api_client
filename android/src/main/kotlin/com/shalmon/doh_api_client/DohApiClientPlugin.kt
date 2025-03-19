@@ -203,7 +203,12 @@ class ApiClient(dohProvider: String) {
                     try {
                         // Try to parse as JSON
                         val jsonObject = JSONObject(it)
-                        val responseMap = jsonToMap(jsonObject)
+                        val map = jsonToMap(jsonObject)
+                        val responseMap = mapOf(
+                            "success" to true,
+                            "data" to map,
+                            "code" to response.code
+                        )
                         result(responseMap, null)
                     } catch (e: Exception) {
                         // If it's not valid JSON, return it as a string in a map
@@ -258,7 +263,12 @@ class ApiClient(dohProvider: String) {
                     try {
                         // Try to parse as JSON
                         val jsonObject = JSONObject(it)
-                        val responseMap = jsonToMap(jsonObject)
+                        val map = jsonToMap(jsonObject)
+                        val responseMap = mapOf(
+                            "success" to true,
+                            "data" to map,
+                            "code" to response.code
+                        )
                         result(responseMap, null)
                     } catch (e: Exception) {
                         // If it's not valid JSON, return it as a string in a map
@@ -313,7 +323,12 @@ class ApiClient(dohProvider: String) {
                     try {
                         // Try to parse as JSON
                         val jsonObject = JSONObject(it)
-                        val responseMap = jsonToMap(jsonObject)
+                        val map = jsonToMap(jsonObject)
+                        val responseMap = mapOf(
+                            "success" to true,
+                            "data" to map,
+                            "code" to response.code
+                        )
                         result(responseMap, null)
                     } catch (e: Exception) {
                         // If it's not valid JSON, return it as a string in a map
@@ -368,7 +383,12 @@ class ApiClient(dohProvider: String) {
                     try {
                         // Try to parse as JSON
                         val jsonObject = JSONObject(it)
-                        val responseMap = jsonToMap(jsonObject)
+                        val map = jsonToMap(jsonObject)
+                        val responseMap = mapOf(
+                            "success" to true,
+                            "data" to map,
+                            "code" to response.code
+                        )
                         result(responseMap, null)
                     } catch (e: Exception) {
                         // If it's not valid JSON, return it as a string in a map
@@ -420,7 +440,12 @@ class ApiClient(dohProvider: String) {
                     try {
                         // Try to parse as JSON
                         val jsonObject = JSONObject(it)
-                        val responseMap = jsonToMap(jsonObject)
+                        val map = jsonToMap(jsonObject)
+                        val responseMap = mapOf(
+                            "success" to true,
+                            "data" to map,
+                            "code" to response.code
+                        )
                         result(responseMap, null)
                     } catch (e: Exception) {
                         // If it's not valid JSON, return it as a string in a map
