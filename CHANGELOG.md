@@ -24,3 +24,6 @@
 
 ## 1.0.5
 * Now returns DohResponse instead of plain Map<String, dynamic> to better handle error states
+
+## 1.0.6
+* Added support for custom interceptors. As well as 2 built in interceptors, 1 basic and 1 based on [PrettyDioLogger](https://github.com/Milad-Akarie/pretty_dio_logger)

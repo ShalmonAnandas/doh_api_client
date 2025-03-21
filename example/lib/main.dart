@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:doh_api_client/doh_response_model.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -28,6 +27,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    _dohApiClientPlugin.addInterceptor(PrettyDohLogger());
     initPlatformState();
   }
 

@@ -1,6 +1,6 @@
 name: doh_api_client
 description: "A Simple API Client that implemented DoH (DNS over HTTPS) protocol using Native Method Channels."
-version: 1.0.5
+version: 1.0.6
 #homepage:
 repository: https://github.com/ShalmonAnandas/doh_api_client
 

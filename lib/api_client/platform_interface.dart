@@ -1,8 +1,9 @@
-import 'package:doh_api_client/doh_response_model.dart';
+import 'package:doh_api_client/utils/doh_response_model.dart';
+import 'package:doh_api_client/interceptor/base_interceptor.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'doh_api_client.dart';
-import 'doh_api_client_method_channel.dart';
+import 'client.dart';
+import 'method_channel.dart';
 
 abstract class DohApiClientPlatform extends PlatformInterface {
   /// Constructs a DohApiClientPlatform.
@@ -25,6 +26,21 @@ abstract class DohApiClientPlatform extends PlatformInterface {
     _instance = instance;
   }
 
+  /// Add an interceptor
+  void addInterceptor(BaseDohInterceptor interceptor) {
+    throw UnimplementedError();
+  }
+
+  /// Remove an interceptor
+  void removeInterceptor(BaseDohInterceptor interceptor) {
+    throw UnimplementedError();
+  }
+
+  /// Clear all interceptors
+  void clearInterceptors() {
+    throw UnimplementedError();
+  }
+
   Future<DohResponse> get(
       String url, Map<String, dynamic> headers, DohProvider dohProvider) {
     throw UnimplementedError('get() has not been implemented');
@@ -35,8 +51,8 @@ abstract class DohApiClientPlatform extends PlatformInterface {
     throw UnimplementedError('post() has not been implemented');
   }
 
-  Future<DohResponse> put(String url, Map<String, dynamic> headers,
-      String body, DohProvider dohProvider) {
+  Future<DohResponse> put(String url, Map<String, dynamic> headers, String body,
+      DohProvider dohProvider) {
     throw UnimplementedError('put() has not been implemented');
   }
 
