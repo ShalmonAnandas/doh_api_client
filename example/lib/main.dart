@@ -27,7 +27,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _dohApiClientPlugin.addInterceptor(PrettyDohLogger());
+    _dohApiClientPlugin.addInterceptor(PrettyDohLogger(requestBody: true, requestHeader: true));
     initPlatformState();
   }
 

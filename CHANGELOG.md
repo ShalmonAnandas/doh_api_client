@@ -31,3 +31,6 @@
 
 ## 1.0.7
 * Runs interceptor on isolates so that intercepting and printing large request / responses dont block the api call execution
+
+## 1.0.8
+* PrettyDohLogger now prints blocks instead of lines

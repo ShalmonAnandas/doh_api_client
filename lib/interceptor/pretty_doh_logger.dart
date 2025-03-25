@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:doh_api_client/utils/doh_response_model.dart';
 import 'package:doh_api_client/interceptor/base_interceptor.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:math' as math;
 
 /// Credits to https://github.com/Milad-Akarie/pretty_dio_logger for providing such a comprehensive logger
 
@@ -88,22 +87,23 @@ class PrettyDohLogger implements BaseDohInterceptor {
     }
 
     if (requestBody && body != null && method != 'GET' && method != 'DELETE') {
-      logPrint('╔ Body');
+      final requestBlock = StringBuffer('╔ Body\n');
       try {
         final dynamic data = json.decode(body);
         if (data is Map) {
-          _printPrettyMap(data);
+          requestBlock.write(_formatPrettyMap(data));
         } else if (data is List) {
-          logPrint('║${_indent()}[');
-          _printList(data);
-          logPrint('║${_indent()}]');
+          requestBlock.write('${_indent()}[\n');
+          requestBlock.write(_formatList(data));
+          requestBlock.write('${_indent()}]\n');
         } else {
-          _printBlock(body);
+          requestBlock.write(body);
         }
       } catch (e) {
-        _printBlock(body);
+        requestBlock.write(body);
       }
-      _printLine('╚');
+      requestBlock.write('╚ ${_repeatChar('═', maxWidth)}');
+      logPrint(requestBlock.toString());
     }
   }
 
@@ -122,23 +122,24 @@ class PrettyDohLogger implements BaseDohInterceptor {
     _printResponseHeader(method, url, response.statusCode, responseTime);
 
     if (responseBody) {
-      logPrint('╔ Body');
+      final responseBlock = StringBuffer('╔ Body\n');
       final data = response.data;
       // ignore: unnecessary_type_check
       if (data is Map) {
-        _printPrettyMap(data);
+        responseBlock.write(_formatPrettyMap(data));
       } else if (data is Uint8List) {
-        logPrint('║${_indent()}[');
-        _printUint8List(data as Uint8List);
-        logPrint('║${_indent()}]');
+        responseBlock.write('${_indent()}[\n');
+        responseBlock.write(_formatUint8List(data as Uint8List));
+        responseBlock.write('${_indent()}]\n');
       } else if (data is List) {
-        logPrint('║${_indent()}[');
-        _printList(data as List);
-        logPrint('║${_indent()}]');
+        responseBlock.write('${_indent()}[\n');
+        responseBlock.write(_formatList(data as List));
+        responseBlock.write('${_indent()}]\n');
       } else {
-        _printBlock(data.toString());
+        responseBlock.write(data.toString());
       }
-      _printLine('╚');
+      responseBlock.write('╚ ${_repeatChar('═', maxWidth)}');
+      logPrint(responseBlock.toString());
     }
   }
 
@@ -149,132 +150,90 @@ class PrettyDohLogger implements BaseDohInterceptor {
     // Clean up timestamp
     _requestTimestamps.remove(url);
 
-    _printBoxed(header: 'Error ║ $method', text: '$url\n$error');
+    final errorBlock = StringBuffer();
+    errorBlock.writeln('╔╣ Error ║ $method');
+    errorBlock.writeln('║  $url');
+    errorBlock.writeln('║  $error');
+    errorBlock.write('╚ ${_repeatChar('═', maxWidth)}');
+    logPrint(errorBlock.toString());
   }
 
-  void _printBoxed({String? header, String? text}) {
-    logPrint('');
-    logPrint('╔╣ $header');
-    logPrint('║  $text');
-    _printLine('╚');
-  }
-
-  void _printRequestHeader(String method, String url) {
-    _printBoxed(header: 'Request ║ $method', text: url);
-  }
-
-  void _printResponseHeader(
-      String method, String url, int statusCode, int responseTime) {
-    _printBoxed(
-      header:
-          'Response ║ $method ║ Status: $statusCode ║ Time: $responseTime ms',
-      text: url,
-    );
-  }
-
-  void _printLine([String pre = '', String suf = '╝']) =>
-      logPrint('$pre${'═' * maxWidth}$suf');
-
-  void _printKV(String? key, Object? v) {
-    final pre = '╟ $key: ';
-    final msg = v.toString();
-
-    if (pre.length + msg.length > maxWidth) {
-      logPrint(pre);
-      _printBlock(msg);
-    } else {
-      logPrint('$pre$msg');
-    }
-  }
-
-  void _printBlock(String msg) {
-    final lines = (msg.length / maxWidth).ceil();
-    for (var i = 0; i < lines; ++i) {
-      logPrint((i >= 0 ? '║ ' : '') +
-          msg.substring(i * maxWidth,
-              math.min<int>(i * maxWidth + maxWidth, msg.length)));
-    }
-  }
-
-  String _indent([int tabCount = kInitialTab]) => tabStep * tabCount;
-
-  void _printPrettyMap(
+  String _formatPrettyMap(
     Map data, {
     int initialTab = kInitialTab,
     bool isListItem = false,
     bool isLast = false,
   }) {
+    final buffer = StringBuffer();
     var tabs = initialTab;
     final isRoot = tabs == kInitialTab;
     final initialIndent = _indent(tabs);
     tabs++;
 
-    if (isRoot || isListItem) logPrint('║$initialIndent{');
+    if (isRoot || isListItem) buffer.write('║$initialIndent{\n');
 
     for (var index = 0; index < data.length; index++) {
       final isLast = index == data.length - 1;
       final key = '"${data.keys.elementAt(index)}"';
       dynamic value = data[data.keys.elementAt(index)];
+
+      // Format string values
       if (value is String) {
         value = '"${value.toString().replaceAll(RegExp(r'([\r\n])+'), " ")}"';
       }
+
+      // Handle nested structures
       if (value is Map) {
         if (compact && _canFlattenMap(value)) {
-          logPrint('║${_indent(tabs)} $key: $value${!isLast ? ',' : ''}');
+          buffer.write('║${_indent(tabs)} $key: $value${!isLast ? ',' : ''}\n');
         } else {
-          logPrint('║${_indent(tabs)} $key: {');
-          _printPrettyMap(value, initialTab: tabs);
+          buffer.write('║${_indent(tabs)} $key: {\n');
+          buffer.write(_formatPrettyMap(value, initialTab: tabs));
         }
       } else if (value is List) {
         if (compact && _canFlattenList(value)) {
-          logPrint('║${_indent(tabs)} $key: ${value.toString()}');
+          buffer.write('║${_indent(tabs)} $key: ${value.toString()}\n');
         } else {
-          logPrint('║${_indent(tabs)} $key: [');
-          _printList(value, tabs: tabs);
-          logPrint('║${_indent(tabs)} ]${isLast ? '' : ','}');
+          buffer.write('║${_indent(tabs)} $key: [\n');
+          buffer.write(_formatList(value, tabs: tabs));
+          buffer.write('║${_indent(tabs)} ]${isLast ? '' : ','}\n');
         }
       } else {
+        // Handle individual values
         final msg = value.toString().replaceAll('\n', '');
-        final indent = _indent(tabs);
-        final linWidth = maxWidth - indent.length;
-        if (msg.length + indent.length > linWidth) {
-          final lines = (msg.length / linWidth).ceil();
-          for (var i = 0; i < lines; ++i) {
-            final multilineKey = i == 0 ? "$key:" : "";
-            logPrint(
-                '║${_indent(tabs)} $multilineKey ${msg.substring(i * linWidth, math.min<int>(i * linWidth + linWidth, msg.length))}');
-          }
-        } else {
-          logPrint('║${_indent(tabs)} $key: $msg${!isLast ? ',' : ''}');
-        }
+        buffer.write('║${_indent(tabs)} $key: $msg${!isLast ? ',' : ''}\n');
       }
     }
 
-    logPrint('║$initialIndent}${isListItem && !isLast ? ',' : ''}');
+    buffer.write('║$initialIndent}${isListItem && !isLast ? ',' : ''}\n');
+    return buffer.toString();
   }
 
-  void _printList(List list, {int tabs = kInitialTab}) {
+  String _formatList(List list, {int tabs = kInitialTab}) {
+    final buffer = StringBuffer();
     for (var i = 0; i < list.length; i++) {
       final element = list[i];
       final isLast = i == list.length - 1;
       if (element is Map) {
         if (compact && _canFlattenMap(element)) {
-          logPrint('║${_indent(tabs)}  $element${!isLast ? ',' : ''}');
+          buffer.write('║${_indent(tabs)}  $element${!isLast ? ',' : ''}\n');
         } else {
-          _printPrettyMap(
+          buffer.write(_formatPrettyMap(
             element,
             initialTab: tabs + 1,
             isListItem: true,
             isLast: isLast,
-          );
+          ));
         }
       } else {
-        logPrint('║${_indent(tabs + 2)} $element${isLast ? '' : ','}');
+        buffer.write('║${_indent(tabs + 2)} $element${isLast ? '' : ','}\n');
       }
     }
+    return buffer.toString();
   }
 
-  void _printUint8List(Uint8List list, {int tabs = kInitialTab}) {
+  String _formatUint8List(Uint8List list, {int tabs = kInitialTab}) {
+    final buffer = StringBuffer();
     var chunks = [];
     for (var i = 0; i < list.length; i += chunkSize) {
       chunks.add(
@@ -283,9 +242,43 @@ class PrettyDohLogger implements BaseDohInterceptor {
       );
     }
     for (var element in chunks) {
-      logPrint('║${_indent(tabs)} ${element.join(", ")}');
+      buffer.write('║${_indent(tabs)} ${element.join(", ")}\n');
     }
+    return buffer.toString();
   }
+
+  void _printRequestHeader(String method, String url) {
+    final headerBlock = StringBuffer();
+    headerBlock.writeln('╔╣ Request ║ $method');
+    headerBlock.writeln('║  $url');
+    headerBlock.write('╚ ${_repeatChar('═', maxWidth)}');
+    logPrint(headerBlock.toString());
+  }
+
+  void _printResponseHeader(
+      String method, String url, int statusCode, int responseTime) {
+    final headerBlock = StringBuffer();
+    headerBlock.writeln(
+        '╔╣ Response ║ $method ║ Status: $statusCode ║ Time: $responseTime ms');
+    headerBlock.writeln('║  $url');
+    headerBlock.write('╚ ${_repeatChar('═', maxWidth)}');
+    logPrint(headerBlock.toString());
+  }
+
+  void _printMapAsTable(Map? map, {String? header}) {
+    if (map == null || map.isEmpty) return;
+    final tableBlock = StringBuffer();
+    tableBlock.writeln('╔ $header');
+    for (final entry in map.entries) {
+      tableBlock.writeln('║  ${entry.key}: ${entry.value}');
+    }
+    tableBlock.write('╚ ${_repeatChar('═', maxWidth)}');
+    logPrint(tableBlock.toString());
+  }
+
+  String _indent([int tabCount = kInitialTab]) => tabStep * tabCount;
+
+  String _repeatChar(String char, int count) => char * count;
 
   bool _canFlattenMap(Map map) {
     return map.values
@@ -296,14 +289,5 @@ class PrettyDohLogger implements BaseDohInterceptor {
 
   bool _canFlattenList(List list) {
     return list.length < 10 && list.toString().length < maxWidth;
-  }
-
-  void _printMapAsTable(Map? map, {String? header}) {
-    if (map == null || map.isEmpty) return;
-    logPrint('╔ $header ');
-    for (final entry in map.entries) {
-      _printKV(entry.key.toString(), entry.value);
-    }
-    _printLine('╚');
   }
 }
