@@ -27,3 +27,7 @@
 
 ## 1.0.6
 * Added support for custom interceptors. As well as 2 built in interceptors, 1 basic and 1 based on [PrettyDioLogger](https://github.com/Milad-Akarie/pretty_dio_logger)
+
+
+## 1.0.7
+* Runs interceptor on isolates so that intercepting and printing large request / responses dont block the api call execution

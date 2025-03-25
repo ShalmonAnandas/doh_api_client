@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:isolate';
+
 import 'package:doh_api_client/utils/doh_response_model.dart';
 import 'package:doh_api_client/interceptor/base_interceptor.dart';
 import 'package:doh_api_client/utils/response_utils.dart';
@@ -7,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'client.dart';
 import 'platform_interface.dart';
 
-/// An implementation of [DohApiClientPlatform] that uses method channels.
+/// An implementation of [DohApiClientPlatform] that uses method channels with async interceptors.
 class MethodChannelDohApiClient extends DohApiClientPlatform
     with ResponseUtils {
   /// The method channel used to interact with the native platform.
@@ -102,6 +105,80 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
     );
   }
 
+  /// Run interceptor method in an isolate
+  Future<void> _runInterceptorIsolate({
+    required String method,
+    required BaseDohInterceptor interceptor,
+    required String requestType,
+    required String url,
+    Map<String, dynamic>? headers,
+    dynamic body,
+    String? dohProvider,
+    DohResponse? response,
+    dynamic error,
+  }) async {
+    final receivePort = ReceivePort();
+    await Isolate.spawn(_isolateFunction, receivePort.sendPort);
+    final sendPort = await receivePort.first as SendPort;
+
+    final completer = Completer<void>();
+    final responsePort = ReceivePort();
+    sendPort.send([
+      responsePort.sendPort,
+      method,
+      interceptor,
+      requestType,
+      url,
+      headers,
+      body,
+      dohProvider,
+      response,
+      error,
+    ]);
+
+    responsePort.listen((message) {
+      if (message == 'done') {
+        completer.complete();
+      }
+    });
+
+    return completer.future;
+  }
+
+  /// Static function to run in isolate
+  static void _isolateFunction(SendPort mainSendPort) {
+    final receivePort = ReceivePort();
+    mainSendPort.send(receivePort.sendPort);
+
+    receivePort.listen((message) async {
+      final SendPort replyPort = message[0];
+      final String method = message[1];
+      final BaseDohInterceptor interceptor = message[2];
+      final String requestType = message[3];
+      final String url = message[4];
+      final Map<String, dynamic>? headers = message[5];
+      final dynamic body = message[6];
+      final String? dohProvider = message[7];
+      final DohResponse? response = message[8];
+      final dynamic error = message[9];
+
+      // Run the appropriate interceptor method based on the method name
+      switch (method) {
+        case 'onRequest':
+          interceptor.onRequest(requestType, url, headers ?? {}, body, dohProvider ?? "");
+          break;
+        case 'onResponse':
+          interceptor.onResponse(requestType, url, response ?? DohResponse.empty());
+          break;
+        case 'onError':
+          interceptor.onError(requestType, url, error);
+          break;
+      }
+
+      replyPort.send('done');
+    });
+  }
+
   Future<DohResponse> makeRequest(
       {required String method, required Map<String, dynamic> request}) async {
     final url = request['url'];
@@ -112,31 +189,54 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
     final requestType =
         method.replaceAll("make", "").replaceAll("request", "").toUpperCase();
 
-    for (final interceptor in interceptors) {
-      interceptor.onRequest(requestType, url, headers, body, dohProvider);
-    }
+    // Run onRequest interceptors asynchronously
+    await Future.wait(interceptors.map((interceptor) => 
+      _runInterceptorIsolate(
+        method: 'onRequest',
+        interceptor: interceptor,
+        requestType: requestType,
+        url: url,
+        headers: headers,
+        body: body,
+        dohProvider: dohProvider,
+      )
+    ));
 
     try {
       final result = await methodChannel.invokeMethod(method, request);
 
       final response = _returnResponse(result);
 
-      for (final interceptor in interceptors) {
-        interceptor.onResponse(requestType, url, response);
-      }
+      // Run onResponse interceptors asynchronously
+      await Future.wait(interceptors.map((interceptor) => 
+        _runInterceptorIsolate(
+          method: 'onResponse',
+          interceptor: interceptor,
+          requestType: requestType,
+          url: url,
+          response: response,
+        )
+      ));
 
       return response;
     } catch (er) {
-      for (final interceptor in interceptors) {
-        interceptor.onError(requestType, url, er);
-      }
+      // Run onError interceptors asynchronously
+      await Future.wait(interceptors.map((interceptor) => 
+        _runInterceptorIsolate(
+          method: 'onError',
+          interceptor: interceptor,
+          requestType: requestType,
+          url: url,
+          error: er,
+        )
+      ));
       rethrow;
     }
   }
 
   DohResponse _returnResponse(result) {
     if (result == null) {
-      return DohResponse(data: {}, message: "Unkown Error", statusCode: 520);
+      return DohResponse(data: {}, message: "Unknown Error", statusCode: 520);
     } else {
       final map = convertMap(result as Map<Object?, Object?>);
       if (map["success"] == false) {
