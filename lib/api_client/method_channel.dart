@@ -118,7 +118,7 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
     dynamic error,
   }) async {
     final receivePort = ReceivePort();
-    await Isolate.spawn(_isolateFunction, receivePort.sendPort);
+    final isolate = await Isolate.spawn(_isolateFunction, receivePort.sendPort);
     final sendPort = await receivePort.first as SendPort;
 
     final completer = Completer<void>();
@@ -139,6 +139,9 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
     responsePort.listen((message) {
       if (message == 'done') {
         completer.complete();
+        responsePort.close(); // Close the response port
+        receivePort.close(); // Close the receive port
+        isolate.kill(priority: Isolate.immediate); // Kill the isolate
       }
     });
 
@@ -165,10 +168,12 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
       // Run the appropriate interceptor method based on the method name
       switch (method) {
         case 'onRequest':
-          interceptor.onRequest(requestType, url, headers ?? {}, body, dohProvider ?? "");
+          interceptor.onRequest(
+              requestType, url, headers ?? {}, body, dohProvider ?? "");
           break;
         case 'onResponse':
-          interceptor.onResponse(requestType, url, response ?? DohResponse.empty());
+          interceptor.onResponse(
+              requestType, url, response ?? DohResponse.empty());
           break;
         case 'onError':
           interceptor.onError(requestType, url, error);
@@ -190,17 +195,15 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
         method.replaceAll("make", "").replaceAll("request", "").toUpperCase();
 
     // Run onRequest interceptors asynchronously
-    await Future.wait(interceptors.map((interceptor) => 
-      _runInterceptorIsolate(
-        method: 'onRequest',
-        interceptor: interceptor,
-        requestType: requestType,
-        url: url,
-        headers: headers,
-        body: body,
-        dohProvider: dohProvider,
-      )
-    ));
+    await Future.wait(interceptors.map((interceptor) => _runInterceptorIsolate(
+          method: 'onRequest',
+          interceptor: interceptor,
+          requestType: requestType,
+          url: url,
+          headers: headers,
+          body: body,
+          dohProvider: dohProvider,
+        )));
 
     try {
       final result = await methodChannel.invokeMethod(method, request);
@@ -208,28 +211,26 @@ class MethodChannelDohApiClient extends DohApiClientPlatform
       final response = _returnResponse(result);
 
       // Run onResponse interceptors asynchronously
-      await Future.wait(interceptors.map((interceptor) => 
-        _runInterceptorIsolate(
-          method: 'onResponse',
-          interceptor: interceptor,
-          requestType: requestType,
-          url: url,
-          response: response,
-        )
-      ));
+      await Future.wait(
+          interceptors.map((interceptor) => _runInterceptorIsolate(
+                method: 'onResponse',
+                interceptor: interceptor,
+                requestType: requestType,
+                url: url,
+                response: response,
+              )));
 
       return response;
     } catch (er) {
       // Run onError interceptors asynchronously
-      await Future.wait(interceptors.map((interceptor) => 
-        _runInterceptorIsolate(
-          method: 'onError',
-          interceptor: interceptor,
-          requestType: requestType,
-          url: url,
-          error: er,
-        )
-      ));
+      await Future.wait(
+          interceptors.map((interceptor) => _runInterceptorIsolate(
+                method: 'onError',
+                interceptor: interceptor,
+                requestType: requestType,
+                url: url,
+                error: er,
+              )));
       rethrow;
     }
   }

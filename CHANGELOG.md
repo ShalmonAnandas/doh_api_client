@@ -34,3 +34,6 @@
 
 ## 1.0.8
 * PrettyDohLogger now prints blocks instead of lines
+
+## 1.0.9
+* isolate closing after completion
