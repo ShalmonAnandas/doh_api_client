@@ -37,3 +37,7 @@
 
 ## 1.0.9
 * isolate closing after completion
+
+
+## 1.1.0
+* add extra deps to build.grade. Add proguard-rules.pro file to example. Add extra setup to documentation.

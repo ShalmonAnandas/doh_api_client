@@ -1,13 +1,13 @@
 # DoH API Client Flutter Package
 
-A Flutter package that provides an API client using the DNS over HTTPS (DoH) protocol, implemented with Native code for optimal performance.
+A Flutter package that provides an API client using the DNS over HTTPS (DoH) protocol, implemented with native code for optimal performance. This package allows you to perform HTTP requests securely over DNS using various DoH providers.
 
 ## Features
 
-- Perform HTTP requests (GET, POST, PUT, PATCH, DELETE) using DoH protocol
-- Support for 12 different DoH providers
-- Easy integration with Flutter projects
-- Native implementation for improved performance (Also because it is only possible through native code) [OKHTTP on Android and URLSession on IOS]
+- Perform HTTP requests (GET, POST, PUT, PATCH, DELETE) using the DoH protocol.
+- Support for 12 different DoH providers.
+- Easy integration with Flutter projects.
+- Native implementation for improved performance (using OKHTTP on Android and URLSession on iOS).
 
 ## Installation
 
@@ -15,14 +15,54 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  doh_api_client: ^1.0.5
+  doh_api_client: ^1.1.0
 ```
-s
+
 Then run:
 
 ```
 flutter pub get
 ```
+
+## Aditional Setup
+
+Android
+1. Add Required Permissions
+
+    Open your `AndroidManifest.xml` file and ensure the following permission is added:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+
+2. Modify `build.gradle`
+
+```gradle
+android {
+    ...
+    buildTypes {
+        release {
+            // Add ProGuard rules for DoH API Client
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+```
+
+3. Add ProGuard Rules
+
+    Create or update the `proguard-rules.pro` file in your android/app directory with the following rules:
+
+```
+-keep class com.android.org.conscrypt.** { *; }
+-keep class org.apache.harmony.xnet.provider.jsse.** { *; }
+-dontwarn com.android.org.conscrypt.SSLParametersImpl
+-dontwarn org.apache.harmony.xnet.provider.jsse.SSLParametersImpl
+```
+
+iOS
+
+No additional setup is required for iOS. The package uses URLSession for native DoH requests.
 
 ## Usage
 
@@ -86,11 +126,11 @@ The main class for making API requests.
 
 Methods:
 
-- `Future<Map<String, dynamic>?> get({required String url, Map<String, String>? headers, DohProvider dohProvider})`
-- `Future<Map<String, dynamic>?> post({required String url, Map<String, String>? headers, required String body, DohProvider dohProvider})`
-- `Future<Map<String, dynamic>?> put({required String url, Map<String, String>? headers, required String body, DohProvider dohProvider})`
-- `Future<Map<String, dynamic>?> patch({required String url, Map<String, String>? headers, required String body, DohProvider dohProvider})`
-- `Future<Map<String, dynamic>?> delete({required String url, Map<String, String>? headers, DohProvider dohProvider})`
+- `Future<DohResponse?> get({required String url, Map<String, String>? headers, DohProvider dohProvider})`
+- `Future<DohResponse?> post({required String url, Map<String, String>? headers, required String body, DohProvider dohProvider})`
+- `Future<DohResponse?> put({required String url, Map<String, String>? headers, required String body, DohProvider dohProvider})`
+- `Future<DohResponse?> patch({required String url, Map<String, String>? headers, required String body, DohProvider dohProvider})`
+- `Future<DohResponse?> delete({required String url, Map<String, String>? headers, DohProvider dohProvider})`
 
 ## Contributing
 
